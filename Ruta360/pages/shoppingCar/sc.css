@@ -1,0 +1,27 @@
+/* Configuración de Iconos */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Efecto Speed Line (Subrayado animado) */
+.speed-line::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.3s ease;
+}
+
+.speed-line:hover::after {
+    width: 100%;
+}
+
+/* Color de error para el botón eliminar */
+.text-error {
+    color: #ffb4ab;
+}
+
+.hover\:text-error:hover {
+    color: #ff5449;
+}

@@ -1,0 +1,23 @@
+/* Configuración de Iconos */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Animación de subrayado en el banner */
+.speed-line::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s ease;
+}
+
+.speed-line:hover::after {
+    width: 100%;
+}
+
+/* Evitar solapamiento en móviles */
+main {
+    word-break: break-word;
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Ruta 360 | Catálogo de Montaña</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link rel="stylesheet" href="products-style.css">
+    <script src="products-script.js" defer></script>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary selection:text-on-primary">
+
+<header class="w-full top-0 sticky z-50 border-b border-outline-variant bg-surface/95 backdrop-blur-md">
+
+    <nav class="flex justify-between items-center px-margin-desktop h-20 max-w-container-max mx-auto">
+        <div class="flex items-center gap-8">
+            <a href="../index/index.html" class="text-headline-md font-headline-md font-extrabold text-primary tracking-tighter">Ruta 360</a>
+            <div class="hidden md:flex gap-6 items-center">
+                <a class="font-label-bold text-label-bold text-primary font-bold border-b-2 border-primary pb-1" href="../products/products.html">Bicicletas</a>
+                <a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors duration-200" href="">Equipo</a>
+                <a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors duration-200" href="../services/services.html">Servicios</a>
+                <a class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors duration-200" href="../taller/taller.html">Taller</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="relative hidden lg:block">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+                <input class="bg-surface-container-low border-b border-outline-variant focus:border-primary focus:ring-0 text-body-md font-body-md pl-10 pr-4 py-2 w-64 transition-all duration-300" placeholder="Buscar equipo..." type="text"/>
+            </div>
+            <button class="text-on-surface hover:text-secondary transition-all duration-300" onclick="window.location.href='../shoppingCar/sc.html'">
+                <span class="material-symbols-outlined">shopping_cart</span>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<div class="flex max-w-container-max mx-auto min-h-screen">
+    <aside class="hidden lg:flex flex-col py-8 h-full w-64 fixed left-[max(0px,calc(50%-720px))] top-20 bg-surface-container-high border-r border-outline-variant shadow-xl overflow-y-auto">
+        <div class="px-6 mb-8">
+            <h2 class="font-headline-md text-headline-md text-primary mb-2">Filtros</h2>
+            <p class="text-on-surface-variant font-label-bold text-label-bold uppercase tracking-widest">Refinar Búsqueda</p>
+        </div>
+        <div class="px-6 space-y-10">
+            <section>
+                <h3 class="font-label-bold text-label-bold text-on-surface mb-4 uppercase tracking-tighter">Categoría</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3 p-2 bg-primary-container text-on-primary-container rounded-r-full mr-4 cursor-pointer">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">terrain</span>
+                        <span class="font-label-bold">Montaña</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 text-on-surface-variant hover:bg-surface-variant rounded-r-full mr-4 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined">directions_bike</span>
+                        <span class="font-label-bold">Ruta 360</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 text-on-surface-variant hover:bg-surface-variant rounded-r-full mr-4 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined">pedal_bike</span>
+                        <span class="font-label-bold">Gravel</span>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3 class="font-label-bold text-label-bold text-on-surface mb-4 uppercase tracking-tighter">Rango de Precio</h3>
+                <input class="w-full h-1 bg-surface-variant accent-primary cursor-pointer mb-4" max="10000" min="500" type="range"/>
+                <div class="flex justify-between text-label-bold text-on-surface-variant">
+                    <span>$500</span>
+                    <span class="text-secondary">$10,000+</span>
+                </div>
+            </section>
+        </div>
+    </aside>
+
+    <main class="flex-1 lg:ml-64 px-margin-mobile md:px-margin-desktop py-12">
+        <header class="mb-12">
+            <h1 class="font-headline-xl text-headline-xl-mobile md:text-headline-xl text-primary mb-4 uppercase">Flota de Montaña</h1>
+            <p class="text-body-lg text-on-surface-variant max-w-2xl">
+                Diseñadas para la máxima velocidad en terrenos técnicos. Explora nuestras bicicletas profesionales construidas con cuadros de carbono de alto módulo y componentes de precisión.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+            <div class="bg-surface-container border border-outline-variant group transition-all duration-300 hover:border-primary overflow-hidden flex flex-col">
+                <div class="relative h-64 overflow-hidden bg-black">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDznZw7m1wZCol-EzNpmi0_BV2kXsOHCmnaRv-7lnLNrAs_fh9jF3zvKsjgBQyR3EKAak5hCkdZpRHKAD1Bgf8yuQGmmBNqAIJkrL00rAWK6l6DcS9Cj22cwrlyIyEq36CPsKg7Y9WIQDk4zXVAXjMGXtWkaRwHOHGwQyY0t93FW94Tz9F18ENzTIGb0GOwUA50AlTG3svK3QXx3SjYaZ_Vanyd5yovCrGXWtVuz8RoeHNZ2BrwVlKaY2lO9eQkuN-XUKMnt0pdddR9" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" alt="Summit Apex Carbon"/>
+                    <div class="absolute top-4 left-4 bg-primary text-on-primary px-3 py-1 font-label-bold text-label-bold">NOVEDAD</div>
+                </div>
+                <div class="p-6 bg-surface-container-high flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Summit Apex Carbon</h3>
+                        <p class="text-on-surface-variant text-body-md mb-4 line-clamp-2">Bestia del Enduro con suspensión de 160mm y construcción en fibra de carbono de alto módulo ultra ligera.</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="font-headline-md text-headline-md text-secondary">$6,499</span>
+                        <button class="bg-primary text-on-primary px-6 py-3 font-label-bold text-label-bold flex items-center gap-2 hover:bg-white transition-colors">
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+                            Añadir
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface-container border border-outline-variant group transition-all duration-300 hover:border-primary overflow-hidden flex flex-col">
+                <div class="relative h-64 overflow-hidden bg-black">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXo9W8lvVjDvxBWBKR2y9LvGMvO5T1qwJz-Ym57ntKvce0aP_aqd2b-klwmkQJX21YoQXgXfxxB4w9c2KNgCggUa8P19RV0NnCDTfzbaZa8Bi_KViL6D8cViOmZ51CoglsVYtgcIlrMsNMj-1ZN2-jcLgyZ0vxa2peZPjTj7oWf5aJS-F0nDfZieDcltZqXCgmuieIfGbFaPNUFWWcnNRQOoaf075fjH2NDoEZyoFfY_oJOSVTC7StU3YhnwGAYtQ5eq2lv_EIgJhS" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" alt="Ruta 360"/>
+                </div>
+                <div class="p-6 bg-surface-container-high flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Ruta 360</h3>
+                        <p class="text-on-surface-variant text-body-md mb-4 line-clamp-2">La compañera definitiva con geometría reactiva y cambios electrónicos inalámbricos de 12 velocidades.</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="font-headline-md text-headline-md text-secondary">$4,250</span>
+                        <button class="bg-primary text-on-primary px-6 py-3 font-label-bold text-label-bold flex items-center gap-2 hover:bg-white transition-colors">
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+                            Añadir
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface-container border border-outline-variant group transition-all duration-300 hover:border-primary overflow-hidden flex flex-col">
+                <div class="relative h-64 overflow-hidden bg-black">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiXkCzrP6uhgOmAQB-WaahYcnlc1tCOpecTd0vSGpDqDgQFo2Xro956oSK3UPcInrVPyogdUvVc_qYwEF3btR1oCfioLHlRQ7_3ohzV1ADnzeQu7Jovp2fWjbFUONj9sJ5_O_9wKFqFG9DCxkjdf9lCndhfIK2tOrHOa_Mq0l69R8-BZIs-hm-ZZXv5VTNCUsMiOtl5TW8pv3IwMJtrqsDQ7WHwzWE5qoWkXCCSa5-BktLsCOV5QHOEo_-MVUcvU9s-dXEWQK_qjrE" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" alt="Volt-X Enduro E"/>
+                </div>
+                <div class="p-6 bg-surface-container-high flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Volt-X Enduro E</h3>
+                        <p class="text-on-surface-variant text-body-md mb-4 line-clamp-2">Potente motor central de 85Nm con batería de alta capacidad para los ascensos más exigentes.</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="font-headline-md text-headline-md text-secondary">$8,199</span>
+                        <button class="bg-primary text-on-primary px-6 py-3 font-label-bold text-label-bold flex items-center gap-2 hover:bg-white transition-colors">
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+                            Añadir
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-primary-container p-8 flex flex-col justify-center overflow-hidden relative border border-primary group md:col-span-2 xl:col-span-1">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-50"></div>
+                <div class="relative z-10">
+                    <h3 class="font-headline-lg text-headline-lg-mobile text-on-primary-container uppercase tracking-tighter mb-4">Precisión Técnica</h3>
+                    <p class="text-on-primary-container/80 text-body-lg mb-8">Cada cuadro es probado en laboratorio. Reserva tu turno en nuestro taller hoy.</p>
+                    <a class="inline-flex items-center gap-4 text-on-primary-container font-headline-md speed-line transition-all" href="#">
+                        EXPLORAR TALLER
+                        <span class="material-symbols-outlined">trending_flat</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <section class="mt-20">
+            <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-8 uppercase">Comparativa Técnica</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                    <tr class="bg-surface-container-highest">
+                        <th class="p-4 text-left font-label-bold text-on-surface uppercase border-r border-outline-variant">Modelo</th>
+                        <th class="p-4 text-left font-label-bold text-on-surface uppercase border-r border-outline-variant">Material</th>
+                        <th class="p-4 text-left font-label-bold text-on-surface uppercase border-r border-outline-variant">Peso</th>
+                        <th class="p-4 text-left font-label-bold text-on-surface uppercase">Transmisión</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="bg-surface-container-low hover:bg-surface-variant transition-colors">
+                        <td class="p-4 font-headline-md text-primary border-r border-outline-variant">Summit Apex</td>
+                        <td class="p-4 text-on-surface-variant border-r border-outline-variant">Carbono HM</td>
+                        <td class="p-4 text-on-surface-variant border-r border-outline-variant">12.8 kg</td>
+                        <td class="p-4 text-on-surface-variant">Apex Pro Wireless</td>
+                    </tr>
+                    <tr class="bg-surface-container-high hover:bg-surface-variant transition-colors">
+                        <td class="p-4 font-headline-md text-primary border-r border-outline-variant">Ruta 360</td>
+                        <td class="p-4 text-on-surface-variant border-r border-outline-variant">Aluminio Ultra-Lite</td>
+                        <td class="p-4 text-on-surface-variant border-r border-outline-variant">14.2 kg</td>
+                        <td class="p-4 text-on-surface-variant">Apex Sport 12s</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant mt-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-12 max-w-container-max mx-auto">
+        <div class="space-y-4">
+            <span class="font-headline-md text-headline-md text-primary">Apex Trail System</span>
+            <p class="text-on-surface-variant">Ingeniería para la velocidad. Equipo de alto rendimiento para ciclistas en todo el mundo.</p>
+        </div>
+        <div>
+            <h4 class="font-label-bold text-on-surface uppercase mb-6">Recursos</h4>
+            <div class="flex flex-col gap-3 text-on-surface-variant">
+                <a href="#">Garantía</a>
+                <a href="#">Guía de Tallas</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </div>
+    <div class="border-t border-outline-variant/10 py-6 text-center text-on-surface-variant text-sm">
+        © 2026 Apex Trail System. Diseñado para la Velocidad.
+    </div>
+</footer>
+</body>
+</html>
