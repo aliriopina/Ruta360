@@ -23,6 +23,8 @@ Vanilla JavaScript (Lógica de filtrado, carrito y manipulación del DOM)
 
 Google Fonts & Material Symbols (Tipografía y recursos visuales)
 
+<img width="772" height="511" alt="image" src="https://github.com/user-attachments/assets/36c0f8de-cfa0-421b-b30f-f7a81494474e" />
+
 Equipo: 
 Manuela Madrid Vasco
 Andres Alirio Piña
