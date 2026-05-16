@@ -1,53 +1,25 @@
 /**
  * app.js — Controlador principal de la aplicación Ruta 360
- * Inicializa las clases, gestiona el estado global y conecta UI con lógica.
  */
 
-// ── ESTADO GLOBAL DE LA APP ──────────────────────────────────────────────────
 const App = {
-  // Catálogo: Map<id, Bicicleta>
   catalogo: new Map(),
-
-  // Carrito activo
   compraActiva: null,
-
-  // Usuario en sesión
   usuarioActual: null,
-
-  // Registro de ventas (persistido en localStorage)
   ventas: [],
-
-  // Usuarios del sistema (en producción vendría de un backend)
   usuarios: [],
 
-  // ── INICIALIZACIÓN ──────────────────────────────────────────────────────────
-
-  /**
-   * Punto de entrada de la aplicación.
-   * Se llama desde DOMContentLoaded en cada página.
-   */
   init() {
     this._inicializarCatalogo();
     this._inicializarUsuarios();
     this._cargarSesion();
     this._cargarVentas();
-
-    // Restaurar carrito del localStorage
     this.compraActiva = Compra.cargarDesdeStorage(this.catalogo);
-
-    // Actualizar badge del carrito
     Renderer.actualizarBadgeCarrito(this.compraActiva.totalItems());
-
-    // Configurar botón de usuario en el header
     this._configurarBotonUsuario();
-
     console.log('[Ruta360] App inicializada ✓');
   },
 
-  /**
-   * Crea instancias de Bicicleta desde los datos y las guarda en el catálogo.
-   * @private
-   */
   _inicializarCatalogo() {
     PRODUCTOS_DATA.forEach(data => {
       const bicicleta = Bicicleta.fromJSON(data);
@@ -55,24 +27,26 @@ const App = {
     });
   },
 
-  /**
-   * Registra los usuarios del sistema (incluyendo el admin).
-   * @private
-   */
   _inicializarUsuarios() {
-    // Admin del sistema
-    const adminPrincipal = new Admin('admin-001', 'Carlos Vélez', 'admin@ruta360.com', 'admin123');
+    // Cargar usuarios guardados (registros nuevos) + defaults
+    let guardados = [];
+    try {
+      guardados = JSON.parse(localStorage.getItem('ruta360_usuarios_extra')) || [];
+    } catch (e) {}
 
-    // Usuario regular
-    const usuarioRegular = new Usuario('user-001', 'Laura Gómez', 'user@ruta360.com', 'user123');
+    this.usuarios = [
+      new Admin('admin-001', 'Carlos Vélez', 'admin@ruta360.com', 'admin123'),
+      new Usuario('user-001', 'Laura Gómez', 'user@ruta360.com', 'user123'),
+      ...guardados.map(u => {
+        const usr = new Usuario(u.id, u.nombre, u.email, u._password || u.password);
+        return usr;
+      })
+    ];
 
-    this.usuarios = [adminPrincipal, usuarioRegular];
+    // Cargar historial de cada usuario desde localStorage
+    this.usuarios.forEach(u => u.cargarHistorial());
   },
 
-  /**
-   * Restaura la sesión del usuario desde localStorage.
-   * @private
-   */
   _cargarSesion() {
     try {
       const sesion = JSON.parse(localStorage.getItem('ruta360_sesion'));
@@ -84,10 +58,6 @@ const App = {
     }
   },
 
-  /**
-   * Carga el historial de ventas desde localStorage.
-   * @private
-   */
   _cargarVentas() {
     try {
       this.ventas = JSON.parse(localStorage.getItem('ruta360_ventas')) || [];
@@ -96,34 +66,43 @@ const App = {
     }
   },
 
-  // ── AUTENTICACIÓN ──────────────────────────────────────────────────────────
+  // ── REGISTRO ────────────────────────────────────────────────────────────────
+  registrar(nombre, email, password) {
+    if (!nombre.trim() || !email.trim() || !password.trim()) {
+      return { exito: false, mensaje: 'Todos los campos son obligatorios.' };
+    }
+    if (this.usuarios.find(u => u.email === email)) {
+      return { exito: false, mensaje: 'Ya existe una cuenta con ese email.' };
+    }
+    if (password.length < 6) {
+      return { exito: false, mensaje: 'La contraseña debe tener mínimo 6 caracteres.' };
+    }
 
-  /**
-   * Intenta autenticar un usuario.
-   * @param {string} email
-   * @param {string} password
-   * @returns {{ exito: boolean, usuario?: Usuario, mensaje?: string }}
-   */
+    const id = `user-${Date.now()}`;
+    const nuevoUsuario = new Usuario(id, nombre.trim(), email.trim(), password);
+    this.usuarios.push(nuevoUsuario);
+
+    // Persistir usuarios extra
+    let guardados = [];
+    try { guardados = JSON.parse(localStorage.getItem('ruta360_usuarios_extra')) || []; } catch (e) {}
+    guardados.push({ id, nombre: nombre.trim(), email: email.trim(), _password: password });
+    localStorage.setItem('ruta360_usuarios_extra', JSON.stringify(guardados));
+
+    return { exito: true, usuario: nuevoUsuario };
+  },
+
+  // ── AUTENTICACIÓN ────────────────────────────────────────────────────────────
   login(email, password) {
     const usuario = this.usuarios.find(u => u.email === email);
-
-    if (!usuario) {
-      return { exito: false, mensaje: 'No existe una cuenta con ese email.' };
-    }
-    if (!usuario.verificarPassword(password)) {
-      return { exito: false, mensaje: 'Contraseña incorrecta.' };
-    }
+    if (!usuario) return { exito: false, mensaje: 'No existe una cuenta con ese email.' };
+    if (!usuario.verificarPassword(password)) return { exito: false, mensaje: 'Contraseña incorrecta.' };
 
     this.usuarioActual = usuario;
     localStorage.setItem('ruta360_sesion', JSON.stringify({ id: usuario.id }));
     this._actualizarUIUsuario();
-
     return { exito: true, usuario };
   },
 
-  /**
-   * Cierra la sesión del usuario actual.
-   */
   logout() {
     this.usuarioActual = null;
     localStorage.removeItem('ruta360_sesion');
@@ -131,34 +110,37 @@ const App = {
     Renderer.mostrarToast('Sesión cerrada', 'info');
   },
 
-  // ── CARRITO ────────────────────────────────────────────────────────────────
-
-  /**
-   * Agrega una bicicleta al carrito y actualiza la UI.
-   * @param {Bicicleta} bicicleta
-   */
+  // ── CARRITO ─────────────────────────────────────────────────────────────────
   agregarAlCarrito(bicicleta) {
+    if (!this.usuarioActual) {
+      Renderer.mostrarModalSesion(
+        (email, pass) => this.login(email, pass),
+        (nombre, email, pass) => this.registrar(nombre, email, pass)
+      );
+      Renderer.mostrarToast('Debes iniciar sesión para comprar', 'error');
+      return;
+    }
     if (!bicicleta.estaDisponible()) {
       Renderer.mostrarToast('Producto agotado', 'error');
       return;
     }
-
     this.compraActiva.agregarProducto(bicicleta);
     Renderer.actualizarBadgeCarrito(this.compraActiva.totalItems());
     Renderer.mostrarToast(`"${bicicleta.nombre}" añadido al carrito ✓`, 'success');
   },
 
-  /**
-   * Procesa la compra y crea una Venta.
-   * @returns {Venta|null}
-   */
   procesarCompra() {
+    if (!this.usuarioActual) {
+      Renderer.mostrarModalSesion(
+        (email, pass) => this.login(email, pass),
+        (nombre, email, pass) => this.registrar(nombre, email, pass)
+      );
+      return null;
+    }
     if (this.compraActiva.estaVacio()) {
       Renderer.mostrarToast('Tu carrito está vacío', 'error');
       return null;
     }
-
-    // Reducir stock
     try {
       this.compraActiva.items.forEach(item => {
         item.bicicleta.reducirStock(item.cantidad);
@@ -168,86 +150,107 @@ const App = {
       return null;
     }
 
-    // Crear venta
     const venta = new Venta(this.compraActiva, this.usuarioActual);
 
-    // Registrar en historial del usuario
-    if (this.usuarioActual) {
-      this.usuarioActual.agregarCompra(venta.id);
-    }
+    // Guardar en historial del usuario (objeto completo)
+    this.usuarioActual.agregarCompra(venta.toJSON());
 
-    // Guardar venta
+    // Guardar en ventas globales
     this.ventas.push(venta.toJSON());
     localStorage.setItem('ruta360_ventas', JSON.stringify(this.ventas));
 
-    // Vaciar carrito
     this.compraActiva.vaciarCarrito();
     Renderer.actualizarBadgeCarrito(0);
-
     return venta;
   },
 
-  // ── UI HELPERS ─────────────────────────────────────────────────────────────
-
-  /**
-   * Configura el botón de usuario en el header.
-   * @private
-   */
+  // ── UI ───────────────────────────────────────────────────────────────────────
   _configurarBotonUsuario() {
     const btnUsuario = document.getElementById('btn-usuario');
     if (!btnUsuario) return;
-
     this._actualizarUIUsuario();
 
     btnUsuario.addEventListener('click', () => {
       if (this.usuarioActual) {
-        // Menú contextual simple
-        const menu = document.createElement('div');
-        menu.className = 'absolute right-0 top-12 bg-surface-container border border-outline-variant p-4 z-50 min-w-[200px]';
-        menu.innerHTML = `
-          <p class="text-on-surface font-bold mb-1">${this.usuarioActual.nombre}</p>
-          <p class="text-on-surface-variant text-xs mb-4">${this.usuarioActual.rol.toUpperCase()}</p>
-          ${this.usuarioActual.esAdmin() ? `<a href="../admin/admin.html" class="block text-primary text-sm mb-3 hover:underline">Panel Admin</a>` : ''}
-          <button id="btn-logout" class="text-red-400 text-sm hover:underline">Cerrar Sesión</button>
-        `;
-        const container = btnUsuario.parentElement;
-        container.style.position = 'relative';
-
-        const existing = container.querySelector('.absolute');
-        if (existing) { existing.remove(); return; }
-
-        container.appendChild(menu);
-        menu.querySelector('#btn-logout')?.addEventListener('click', () => {
-          this.logout();
-          menu.remove();
-        });
-        document.addEventListener('click', (e) => {
-          if (!menu.contains(e.target) && e.target !== btnUsuario) menu.remove();
-        }, { once: true });
+        this._mostrarMenuUsuario(btnUsuario);
       } else {
-        Renderer.mostrarModalSesion((email, pass) => this.login(email, pass));
+        Renderer.mostrarModalSesion(
+          (email, pass) => this.login(email, pass),
+          (nombre, email, pass) => this.registrar(nombre, email, pass)
+        );
       }
     });
   },
 
-  /**
-   * Actualiza el ícono y tooltip del botón de usuario según sesión activa.
-   * @private
-   */
+  _mostrarMenuUsuario(btnUsuario) {
+    const existing = document.getElementById('menu-usuario');
+    if (existing) { existing.remove(); return; }
+
+    const menu = document.createElement('div');
+    menu.id = 'menu-usuario';
+    menu.className = 'absolute right-0 top-full mt-2 bg-surface-container border border-outline-variant shadow-2xl z-50 min-w-[220px]';
+
+    // Historial
+    const historial = this.usuarioActual.historialCompras.slice(-3).reverse();
+    const historialHTML = historial.length > 0
+      ? historial.map(v => `
+          <div class="px-4 py-2 border-b border-outline-variant/50">
+            <p class="text-on-surface text-xs font-bold">${v.numeroSeguimiento}</p>
+            <p class="text-on-surface-variant text-xs">$${v.total?.toLocaleString('en-US', {minimumFractionDigits:2})} · ${new Date(v.fecha).toLocaleDateString('es-CO')}</p>
+          </div>`).join('')
+      : `<p class="text-on-surface-variant text-xs px-4 py-2">Sin compras aún</p>`;
+
+    menu.innerHTML = `
+      <div class="p-4 border-b border-outline-variant bg-surface-container-high">
+        <p class="text-primary font-bold font-headline-md">${this.usuarioActual.nombre}</p>
+        <p class="text-on-surface-variant text-xs">${this.usuarioActual.email}</p>
+        <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${this.usuarioActual.esAdmin() ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-on-surface-variant'}">${this.usuarioActual.rol}</span>
+      </div>
+      <div class="py-2">
+        <p class="text-on-surface-variant text-[10px] uppercase tracking-widest font-bold px-4 py-1">Últimas compras</p>
+        ${historialHTML}
+      </div>
+      ${this.usuarioActual.esAdmin() ? `<a href="${window.location.pathname.includes('/pages/') ? '../admin/admin.html' : 'pages/admin/admin.html'}" class="block px-4 py-3 text-primary text-sm hover:bg-surface-container-high transition-colors border-t border-outline-variant">Panel Admin</a>` : ''}
+      <button id="btn-logout" class="w-full text-left px-4 py-3 text-red-400 text-sm hover:bg-surface-container-high transition-colors border-t border-outline-variant">Cerrar Sesión</button>
+    `;
+
+    const container = btnUsuario.closest('.flex');
+    const wrapper = btnUsuario.parentElement;
+    wrapper.style.position = 'relative';
+    wrapper.appendChild(menu);
+
+    menu.querySelector('#btn-logout')?.addEventListener('click', () => {
+      this.logout();
+      menu.remove();
+    });
+
+    setTimeout(() => {
+      document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && e.target !== btnUsuario) menu.remove();
+      }, { once: true });
+    }, 10);
+  },
+
   _actualizarUIUsuario() {
     const btnUsuario = document.getElementById('btn-usuario');
     if (!btnUsuario) return;
+    const icon = btnUsuario.querySelector('.material-symbols-outlined');
+    const nameSpan = btnUsuario.querySelector('.user-name-label');
 
     if (this.usuarioActual) {
-      const icon = btnUsuario.querySelector('.material-symbols-outlined');
       if (icon) icon.textContent = 'account_circle';
       btnUsuario.title = this.usuarioActual.nombre;
       btnUsuario.classList.add('text-primary');
+      // Mostrar nombre si existe el span
+      if (nameSpan) {
+        nameSpan.textContent = this.usuarioActual.nombre;
+        nameSpan.classList.remove('hidden');
+      }
     } else {
-      const icon = btnUsuario.querySelector('.material-symbols-outlined');
       if (icon) icon.textContent = 'person';
       btnUsuario.title = 'Iniciar sesión';
       btnUsuario.classList.remove('text-primary');
+      if (nameSpan) nameSpan.classList.add('hidden');
     }
   }
 };

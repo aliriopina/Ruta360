@@ -50,9 +50,7 @@
         <span class="material-symbols-outlined">shopping_cart</span>
         <span data-cart-badge class="hidden absolute -top-2 -right-2 bg-primary text-on-primary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </button>
-      <button id="btn-usuario" class="text-on-surface hover:text-primary transition-colors">
-        <span class="material-symbols-outlined">person</span>
-      </button>
+      <button id="btn-usuario" class="flex items-center gap-2 text-on-surface hover:text-primary transition-colors duration-300" title="Iniciar sesión"><span class="material-symbols-outlined">person</span><span class="user-name-label hidden text-sm font-bold truncate max-w-[120px]"></span></button>
     </div>
   </div>
 </nav>
@@ -121,6 +119,9 @@
 
         <!-- Botones de acción -->
         <div class="space-y-3">
+          <div id="aviso-login" class="hidden w-full py-3 border border-yellow-500/40 bg-yellow-500/10 text-yellow-400 text-xs text-center font-bold uppercase tracking-widest">
+            ⚠ Inicia sesión para comprar
+          </div>
           <button id="btn-pagar" class="w-full py-4 bg-primary text-on-primary font-extrabold uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 active:scale-95 text-sm font-headline-md">
             Finalizar Compra
           </button>
@@ -165,6 +166,15 @@
   </div>
 </div>
 
+
+<!-- HISTORIAL DE COMPRAS DEL USUARIO -->
+<section id="seccion-historial" class="hidden max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+  <h2 class="text-2xl font-extrabold uppercase tracking-tighter mb-6 font-headline-lg text-on-surface">Mis Compras</h2>
+  <div id="historial-lista" class="space-y-4">
+    <!-- Renderizado dinámico -->
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer class="bg-surface-container-lowest border-t border-outline-variant w-full mt-16">
   <div class="px-margin-mobile md:px-margin-desktop py-8 max-w-container-max mx-auto text-center">
@@ -189,6 +199,50 @@
     const carritoVacio = document.getElementById('carrito-vacio');
     const filasDescuento = document.getElementById('fila-descuento');
     const codigoAplicado = document.getElementById('codigo-aplicado');
+    const avisoLogin = document.getElementById('aviso-login');
+
+    // ── Verificar sesión y mostrar/ocultar aviso
+    function actualizarEstadoAuth() {
+      if (!App.usuarioActual) {
+        if (avisoLogin) avisoLogin.classList.remove('hidden');
+      } else {
+        if (avisoLogin) avisoLogin.classList.add('hidden');
+        renderizarHistorial();
+      }
+    }
+
+    // ── Historial de compras del usuario
+    function renderizarHistorial() {
+      const seccion = document.getElementById('seccion-historial');
+      const lista = document.getElementById('historial-lista');
+      if (!seccion || !lista || !App.usuarioActual) return;
+
+      const historial = App.usuarioActual.historialCompras;
+      if (historial.length === 0) { seccion.classList.add('hidden'); return; }
+
+      seccion.classList.remove('hidden');
+      lista.innerHTML = '';
+
+      [...historial].reverse().forEach(v => {
+        const el = document.createElement('div');
+        el.className = 'bg-surface-container border border-outline-variant p-6';
+        const itemsTexto = v.items?.map(i => `${i.nombre} x${i.cantidad}`).join(', ') || 'Productos';
+        el.innerHTML = `
+          <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+            <div>
+              <p class="text-primary font-bold font-headline-md">${v.numeroSeguimiento}</p>
+              <p class="text-on-surface-variant text-xs mt-1">${new Date(v.fecha).toLocaleDateString('es-CO', {year:'numeric',month:'long',day:'numeric'})}</p>
+              <p class="text-on-surface text-sm mt-2">${itemsTexto}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <p class="text-primary text-xl font-bold font-headline-md">$${v.total?.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
+              <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-bold uppercase ${v.estado === 'completada' ? 'bg-primary/20 text-primary' : 'bg-surface-container-highest text-on-surface-variant'}">${v.estado}</span>
+            </div>
+          </div>
+        `;
+        lista.appendChild(el);
+      });
+    }
 
     // ── Renderizar items del carrito
     function renderizarCarrito() {
@@ -204,13 +258,11 @@
         App.compraActiva.items.forEach(item => {
           const el = Renderer.crearItemCarrito(
             item,
-            // onEliminar
             (id) => {
               App.compraActiva.eliminarProducto(id);
               renderizarCarrito();
               Renderer.actualizarResumenCarrito(App.compraActiva);
             },
-            // onCambiarCantidad
             (id, nuevaCantidad) => {
               App.compraActiva.actualizarCantidad(id, nuevaCantidad);
               renderizarCarrito();
@@ -223,7 +275,6 @@
 
       Renderer.actualizarResumenCarrito(App.compraActiva);
 
-      // Mostrar descuento si aplica
       if (App.compraActiva.codigoDescuento) {
         filasDescuento.classList.remove('hidden');
         codigoAplicado.textContent = App.compraActiva.codigoDescuento;
@@ -237,11 +288,9 @@
       const codigo = document.getElementById('input-descuento').value.trim();
       const resultado = App.compraActiva.aplicarCodigoDescuento(codigo);
       const msgEl = document.getElementById('msg-descuento');
-      
       msgEl.classList.remove('hidden', 'text-primary', 'text-red-400');
       msgEl.classList.add(resultado.exito ? 'text-primary' : 'text-red-400');
       msgEl.textContent = resultado.mensaje;
-
       if (resultado.exito) renderizarCarrito();
     });
 
@@ -252,18 +301,34 @@
       Renderer.mostrarToast('Carrito vaciado', 'info');
     });
 
-    // ── Finalizar compra
+    // ── Finalizar compra (requiere sesión)
     document.getElementById('btn-pagar').addEventListener('click', () => {
+      if (!App.usuarioActual) {
+        Renderer.mostrarModalSesion(
+          (email, pass) => {
+            const r = App.login(email, pass);
+            if (r.exito) { actualizarEstadoAuth(); }
+            return r;
+          },
+          (nombre, email, pass) => {
+            const r = App.registrar(nombre, email, pass);
+            if (r.exito) { App.login(email, pass); actualizarEstadoAuth(); }
+            return r;
+          }
+        );
+        Renderer.mostrarToast('Inicia sesión para finalizar tu compra', 'error');
+        return;
+      }
+
       const venta = App.procesarCompra();
       if (!venta) return;
 
-      // Mostrar modal de confirmación
       const modal = document.getElementById('modal-confirmacion');
       document.getElementById('modal-seguimiento').textContent = `# ${venta.numeroSeguimiento}`;
       document.getElementById('modal-total').textContent = `Total pagado: ${venta.totalFormateado}`;
       modal.classList.remove('hidden');
-
       renderizarCarrito();
+      renderizarHistorial();
     });
 
     // Cerrar modal
@@ -273,6 +338,7 @@
 
     // Render inicial
     renderizarCarrito();
+    actualizarEstadoAuth();
   });
 </script>
 </body>
