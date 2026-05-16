@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Ruta 360 | Carrito de Compras</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface":"#121414","primary":"#77dd6a","secondary":"#4ce346",
+            "on-background":"#e2e2e2","background":"#121414",
+            "surface-container":"#1e2020","surface-container-low":"#1a1c1c",
+            "surface-container-high":"#282a2b","surface-container-highest":"#333535",
+            "surface-container-lowest":"#0c0f0f","outline-variant":"#3f4a3b",
+            "primary-container":"#3fa539","on-primary-container":"#003202",
+            "on-primary":"#003a03","on-surface":"#e2e2e2","on-surface-variant":"#8a9e85","error":"#cf6679"
+          },
+          spacing: { "margin-desktop":"80px","container-max":"1440px","margin-mobile":"20px","gutter":"24px" },
+          fontFamily: { "body-md":["Inter"],"headline-xl":["Montserrat"],"headline-md":["Montserrat"],"label-bold":["Inter"] }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #121414; }
+    ::-webkit-scrollbar-thumb { background: #3f4a3b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #77dd6a; }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary selection:text-on-primary">
+
+<!-- HEADER -->
+<nav class="w-full top-0 sticky z-50 border-b border-outline-variant bg-surface/95 backdrop-blur-md">
+  <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 max-w-container-max mx-auto">
+    <a href="../../index.html" class="text-2xl font-extrabold text-primary tracking-tighter font-headline-md">Ruta 360</a>
+    <div class="hidden md:flex items-center gap-8">
+      <a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="../products/products.html">Bicicletas</a>
+      <a class="text-sm text-primary font-bold border-b-2 border-primary pb-1" href="carrito.html">Carrito</a>
+      <a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="../admin/admin.html">Admin</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="text-primary hover:text-secondary transition-all relative">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span data-cart-badge class="hidden absolute -top-2 -right-2 bg-primary text-on-primary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </button>
+      <button id="btn-usuario" class="text-on-surface hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">person</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+  <header class="mb-10">
+    <h1 class="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter mb-3 font-headline-xl">Tu Bolsa de Equipo</h1>
+    <p id="resumen-items" class="text-on-surface-variant text-base">Cargando carrito...</p>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+    <!-- Lista de items -->
+    <div id="carrito-items" class="lg:col-span-8 space-y-gutter">
+      <!-- Renderer.crearItemCarrito() inyecta aquí -->
+    </div>
+
+    <!-- Carrito vacío -->
+    <div id="carrito-vacio" class="hidden lg:col-span-8 text-center py-24">
+      <span class="material-symbols-outlined text-7xl text-outline-variant mb-6 block">shopping_cart</span>
+      <h2 class="text-2xl font-extrabold text-on-surface mb-4 font-headline-md">Tu carrito está vacío</h2>
+      <p class="text-on-surface-variant mb-8">Agrega algunas bicicletas o accesorios para comenzar.</p>
+      <a href="../products/products.html" class="inline-block bg-primary text-on-primary font-bold px-10 py-4 hover:bg-white hover:text-black transition-all uppercase tracking-tighter text-sm">
+        Ver Catálogo
+      </a>
+    </div>
+
+    <!-- Panel de resumen -->
+    <div class="lg:col-span-4">
+      <div class="sticky top-28 bg-surface-container border border-outline-variant p-8 space-y-6">
+        <h2 class="text-xl font-extrabold uppercase tracking-tight border-b border-outline-variant pb-4 font-headline-md">Resumen del Pedido</h2>
+        
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-on-surface-variant">Subtotal</span>
+            <span id="resumen-subtotal" class="text-on-surface font-bold">$0.00</span>
+          </div>
+          <div id="fila-descuento" class="hidden flex justify-between text-primary">
+            <span>Descuento (<span id="codigo-aplicado"></span>)</span>
+            <span id="resumen-descuento" class="font-bold">-$0.00</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-on-surface-variant">Impuestos (8%)</span>
+            <span id="resumen-impuestos" class="text-on-surface font-bold">$0.00</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-on-surface-variant">Envío</span>
+            <span id="resumen-envio" class="text-on-surface font-bold">$45.00</span>
+          </div>
+          <div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+            <span class="text-xl font-extrabold uppercase font-headline-md">Total</span>
+            <span id="resumen-total" class="text-xl font-extrabold text-primary font-headline-md">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Código descuento -->
+        <div class="space-y-2">
+          <div class="relative">
+            <input id="input-descuento" 
+                   class="w-full bg-surface-container-low border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant py-3 px-0 text-sm uppercase tracking-wider" 
+                   placeholder="Código de descuento" type="text"/>
+            <button id="btn-descuento" class="absolute right-0 bottom-3 text-primary font-bold hover:text-secondary transition-colors uppercase text-xs tracking-wider">Aplicar</button>
+          </div>
+          <p id="msg-descuento" class="text-xs hidden"></p>
+          <p class="text-on-surface-variant text-xs">Prueba: RUTA10 · BICI20 · APEX15</p>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="space-y-3">
+          <button id="btn-pagar" class="w-full py-4 bg-primary text-on-primary font-extrabold uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 active:scale-95 text-sm font-headline-md">
+            Finalizar Compra
+          </button>
+          <button id="btn-vaciar" class="w-full py-3 border border-outline-variant text-on-surface-variant font-bold uppercase tracking-widest hover:border-red-400 hover:text-red-400 transition-all text-xs">
+            Vaciar Carrito
+          </button>
+          <a href="../products/products.html" class="block text-center text-on-surface-variant text-xs hover:text-primary transition-colors">← Seguir comprando</a>
+        </div>
+
+        <!-- Garantías -->
+        <div class="space-y-3 pt-4 border-t border-outline-variant">
+          <div class="flex items-center gap-3 text-on-surface-variant text-xs">
+            <span class="material-symbols-outlined text-primary text-base">local_shipping</span>
+            <span>Envío gratis en compras +$5,000</span>
+          </div>
+          <div class="flex items-center gap-3 text-on-surface-variant text-xs">
+            <span class="material-symbols-outlined text-primary text-base">verified_user</span>
+            <span>Garantía técnica de 2 años</span>
+          </div>
+          <div class="flex items-center gap-3 text-on-surface-variant text-xs">
+            <span class="material-symbols-outlined text-primary text-base">lock</span>
+            <span>Pago 100% seguro</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de confirmación de compra -->
+<div id="modal-confirmacion" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
+  <div class="bg-surface-container border border-primary w-full max-w-md p-8 text-center">
+    <span class="material-symbols-outlined text-primary text-6xl mb-4 block">check_circle</span>
+    <h2 class="text-2xl font-extrabold text-on-surface uppercase mb-3 font-headline-md">¡Compra Exitosa!</h2>
+    <p class="text-on-surface-variant mb-2">Tu pedido fue procesado correctamente.</p>
+    <p class="text-primary font-bold text-lg mb-1" id="modal-seguimiento"></p>
+    <p class="text-on-surface-variant text-sm mb-8" id="modal-total"></p>
+    <div class="flex gap-3">
+      <button id="modal-cerrar" class="flex-1 py-3 border border-outline-variant text-on-surface-variant font-bold uppercase text-sm hover:border-primary hover:text-primary transition-all">Cerrar</button>
+      <a href="../products/products.html" class="flex-1 py-3 bg-primary text-on-primary font-bold uppercase text-sm hover:bg-white hover:text-black transition-all text-center">Seguir Comprando</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full mt-16">
+  <div class="px-margin-mobile md:px-margin-desktop py-8 max-w-container-max mx-auto text-center">
+    <p class="text-on-surface-variant text-xs">© 2026 Ruta 360. Ingeniería de Velocidad.</p>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="../../data.js"></script>
+<script src="../../clases/Bicicleta.js"></script>
+<script src="../../clases/Usuario.js"></script>
+<script src="../../clases/Compra.js"></script>
+<script src="../../clases/Venta.js"></script>
+<script src="../../ui/Renderer.js"></script>
+<script src="../../app.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+
+    const itemsContainer = document.getElementById('carrito-items');
+    const carritoVacio = document.getElementById('carrito-vacio');
+    const filasDescuento = document.getElementById('fila-descuento');
+    const codigoAplicado = document.getElementById('codigo-aplicado');
+
+    // ── Renderizar items del carrito
+    function renderizarCarrito() {
+      itemsContainer.innerHTML = '';
+
+      if (App.compraActiva.estaVacio()) {
+        itemsContainer.classList.add('hidden');
+        carritoVacio.classList.remove('hidden');
+      } else {
+        itemsContainer.classList.remove('hidden');
+        carritoVacio.classList.add('hidden');
+
+        App.compraActiva.items.forEach(item => {
+          const el = Renderer.crearItemCarrito(
+            item,
+            // onEliminar
+            (id) => {
+              App.compraActiva.eliminarProducto(id);
+              renderizarCarrito();
+              Renderer.actualizarResumenCarrito(App.compraActiva);
+            },
+            // onCambiarCantidad
+            (id, nuevaCantidad) => {
+              App.compraActiva.actualizarCantidad(id, nuevaCantidad);
+              renderizarCarrito();
+              Renderer.actualizarResumenCarrito(App.compraActiva);
+            }
+          );
+          itemsContainer.appendChild(el);
+        });
+      }
+
+      Renderer.actualizarResumenCarrito(App.compraActiva);
+
+      // Mostrar descuento si aplica
+      if (App.compraActiva.codigoDescuento) {
+        filasDescuento.classList.remove('hidden');
+        codigoAplicado.textContent = App.compraActiva.codigoDescuento;
+      } else {
+        filasDescuento.classList.add('hidden');
+      }
+    }
+
+    // ── Código de descuento
+    document.getElementById('btn-descuento').addEventListener('click', () => {
+      const codigo = document.getElementById('input-descuento').value.trim();
+      const resultado = App.compraActiva.aplicarCodigoDescuento(codigo);
+      const msgEl = document.getElementById('msg-descuento');
+      
+      msgEl.classList.remove('hidden', 'text-primary', 'text-red-400');
+      msgEl.classList.add(resultado.exito ? 'text-primary' : 'text-red-400');
+      msgEl.textContent = resultado.mensaje;
+
+      if (resultado.exito) renderizarCarrito();
+    });
+
+    // ── Vaciar carrito
+    document.getElementById('btn-vaciar').addEventListener('click', () => {
+      App.compraActiva.vaciarCarrito();
+      renderizarCarrito();
+      Renderer.mostrarToast('Carrito vaciado', 'info');
+    });
+
+    // ── Finalizar compra
+    document.getElementById('btn-pagar').addEventListener('click', () => {
+      const venta = App.procesarCompra();
+      if (!venta) return;
+
+      // Mostrar modal de confirmación
+      const modal = document.getElementById('modal-confirmacion');
+      document.getElementById('modal-seguimiento').textContent = `# ${venta.numeroSeguimiento}`;
+      document.getElementById('modal-total').textContent = `Total pagado: ${venta.totalFormateado}`;
+      modal.classList.remove('hidden');
+
+      renderizarCarrito();
+    });
+
+    // Cerrar modal
+    document.getElementById('modal-cerrar').addEventListener('click', () => {
+      document.getElementById('modal-confirmacion').classList.add('hidden');
+    });
+
+    // Render inicial
+    renderizarCarrito();
+  });
+</script>
+</body>
+</html>

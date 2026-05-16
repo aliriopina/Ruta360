@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Ruta 360 | Panel Administrador</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface":"#121414","primary":"#77dd6a","secondary":"#4ce346",
+            "on-background":"#e2e2e2","background":"#121414",
+            "surface-container":"#1e2020","surface-container-low":"#1a1c1c",
+            "surface-container-high":"#282a2b","surface-container-highest":"#333535",
+            "surface-container-lowest":"#0c0f0f","outline-variant":"#3f4a3b",
+            "primary-container":"#3fa539","on-primary-container":"#003202",
+            "on-primary":"#003a03","on-surface":"#e2e2e2","on-surface-variant":"#8a9e85","error":"#cf6679"
+          },
+          spacing: { "margin-desktop":"80px","container-max":"1440px","margin-mobile":"20px","gutter":"24px" },
+          fontFamily: { "body-md":["Inter"],"headline-xl":["Montserrat"],"headline-md":["Montserrat"],"label-bold":["Inter"] }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #121414; }
+    ::-webkit-scrollbar-thumb { background: #3f4a3b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #77dd6a; }
+    .tab-btn.active { color: #77dd6a; border-bottom-color: #77dd6a; }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md">
+
+<!-- HEADER ADMIN -->
+<header class="w-full top-0 sticky z-50 border-b border-outline-variant bg-surface/95 backdrop-blur-md">
+  <nav class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 max-w-container-max mx-auto">
+    <div class="flex items-center gap-6">
+      <a href="../../index.html" class="text-2xl font-extrabold text-primary tracking-tighter font-headline-md">Ruta 360</a>
+      <span class="text-xs font-bold bg-primary text-on-primary px-3 py-1 uppercase tracking-widest">Admin Panel</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="../products/products.html" class="text-sm text-on-surface-variant hover:text-primary transition-colors">Ver Tienda</a>
+      <button id="btn-usuario" class="text-on-surface hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">manage_accounts</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-10">
+
+  <!-- Acceso restringido (si no es admin) -->
+  <div id="acceso-restringido" class="hidden text-center py-24">
+    <span class="material-symbols-outlined text-7xl text-outline-variant mb-4 block">lock</span>
+    <h2 class="text-2xl font-extrabold text-on-surface mb-3 font-headline-md">Acceso Restringido</h2>
+    <p class="text-on-surface-variant mb-8">Este panel es exclusivo para administradores.</p>
+    <button id="btn-login-admin" class="bg-primary text-on-primary font-bold px-8 py-4 hover:bg-white hover:text-black transition-all uppercase tracking-tighter text-sm">
+      Iniciar Sesión como Admin
+    </button>
+    <p class="text-on-surface-variant text-xs mt-4">admin@ruta360.com / admin123</p>
+  </div>
+
+  <!-- Dashboard Admin -->
+  <div id="dashboard-admin">
+    <!-- Bienvenida -->
+    <div class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-on-surface uppercase font-headline-xl mb-2">Dashboard</h1>
+      <p id="saludo-admin" class="text-on-surface-variant">Bienvenido al panel de administración de Ruta 360.</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter mb-10">
+      <div class="bg-surface-container border border-outline-variant p-6">
+        <p class="text-on-surface-variant text-xs uppercase tracking-widest mb-2 font-bold">Total Ventas</p>
+        <p id="kpi-ventas" class="text-3xl font-extrabold text-primary font-headline-md">0</p>
+        <p class="text-on-surface-variant text-xs mt-1">transacciones</p>
+      </div>
+      <div class="bg-surface-container border border-outline-variant p-6">
+        <p class="text-on-surface-variant text-xs uppercase tracking-widest mb-2 font-bold">Ingresos</p>
+        <p id="kpi-ingresos" class="text-3xl font-extrabold text-primary font-headline-md">$0</p>
+        <p class="text-on-surface-variant text-xs mt-1">total acumulado</p>
+      </div>
+      <div class="bg-surface-container border border-outline-variant p-6">
+        <p class="text-on-surface-variant text-xs uppercase tracking-widest mb-2 font-bold">Productos</p>
+        <p id="kpi-productos" class="text-3xl font-extrabold text-primary font-headline-md">0</p>
+        <p class="text-on-surface-variant text-xs mt-1">en catálogo</p>
+      </div>
+      <div class="bg-surface-container border border-outline-variant p-6">
+        <p class="text-on-surface-variant text-xs uppercase tracking-widest mb-2 font-bold">Stock Bajo</p>
+        <p id="kpi-stock-bajo" class="text-3xl font-extrabold text-red-400 font-headline-md">0</p>
+        <p class="text-on-surface-variant text-xs mt-1">productos críticos</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-outline-variant mb-8 flex gap-6">
+      <button class="tab-btn active border-b-2 pb-4 font-bold uppercase text-sm tracking-wider transition-colors" data-tab="productos">Productos</button>
+      <button class="tab-btn border-b-2 border-transparent text-on-surface-variant pb-4 font-bold uppercase text-sm tracking-wider hover:text-primary transition-colors" data-tab="ventas">Historial Ventas</button>
+      <button class="tab-btn border-b-2 border-transparent text-on-surface-variant pb-4 font-bold uppercase text-sm tracking-wider hover:text-primary transition-colors" data-tab="usuarios">Usuarios</button>
+    </div>
+
+    <!-- TAB: Gestión de Productos -->
+    <div id="tab-productos" class="tab-content">
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm">
+          <thead>
+            <tr class="bg-surface-container-highest">
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Producto</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Categoría</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Precio</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Stock</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-productos">
+            <!-- Renderizado dinámico con App.catalogo -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: Historial de Ventas -->
+    <div id="tab-ventas" class="tab-content hidden">
+      <div id="ventas-vacio" class="hidden text-center py-16">
+        <span class="material-symbols-outlined text-5xl text-outline-variant mb-3 block">receipt_long</span>
+        <p class="text-on-surface-variant">No hay ventas registradas aún.</p>
+        <p class="text-on-surface-variant text-xs mt-2">Las ventas aparecen aquí al completar una compra.</p>
+      </div>
+      <div id="tabla-ventas-container" class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm">
+          <thead>
+            <tr class="bg-surface-container-highest">
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant"># Seguimiento</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Usuario</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Fecha</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Items</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs border-r border-outline-variant">Total</th>
+              <th class="p-4 text-left font-bold text-on-surface uppercase text-xs">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-ventas">
+            <!-- Renderizado dinámico -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: Usuarios -->
+    <div id="tab-usuarios" class="tab-content hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+        <!-- Listado de usuarios del sistema -->
+        <div id="lista-usuarios" class="space-y-4">
+          <!-- Renderizado dinámico -->
+        </div>
+        <!-- Info del sistema -->
+        <div class="bg-surface-container border border-outline-variant p-6">
+          <h3 class="font-extrabold text-on-surface uppercase mb-4 font-headline-md">Sistema</h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">Versión</span>
+              <span class="text-primary font-bold">1.0.0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">Clases POO</span>
+              <span class="text-primary font-bold">5 clases</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">Módulos UI</span>
+              <span class="text-primary font-bold">Renderer.js</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">Persistencia</span>
+              <span class="text-primary font-bold">localStorage</span>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-outline-variant">
+            <h4 class="font-bold text-on-surface uppercase text-xs mb-3 tracking-widest">Arquitectura</h4>
+            <div class="space-y-1 text-xs text-on-surface-variant font-mono">
+              <p class="text-primary">📁 Ruta360/</p>
+              <p class="pl-4">📄 index.html</p>
+              <p class="pl-4">📄 data.js</p>
+              <p class="pl-4">📄 app.js</p>
+              <p class="pl-4 text-primary">📁 clases/</p>
+              <p class="pl-8">📄 Bicicleta.js</p>
+              <p class="pl-8">📄 Usuario.js (+ Admin)</p>
+              <p class="pl-8">📄 Compra.js</p>
+              <p class="pl-8">📄 Venta.js</p>
+              <p class="pl-4 text-primary">📁 ui/</p>
+              <p class="pl-8">📄 Renderer.js</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar producto -->
+<div id="modal-editar" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
+  <div class="bg-surface-container border border-outline-variant w-full max-w-md p-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-extrabold text-primary uppercase font-headline-md">Editar Producto</h2>
+      <button id="cerrar-modal-editar" class="text-on-surface-variant hover:text-primary">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="space-y-5">
+      <div>
+        <label class="block text-on-surface-variant text-xs uppercase tracking-widest mb-2">Producto</label>
+        <p id="editar-nombre" class="text-on-surface font-bold"></p>
+      </div>
+      <div>
+        <label class="block text-on-surface-variant text-xs uppercase tracking-widest mb-2">Precio ($)</label>
+        <input id="editar-precio" type="number" min="1"
+               class="w-full bg-surface-container-low border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-3 px-0"/>
+      </div>
+      <div>
+        <label class="block text-on-surface-variant text-xs uppercase tracking-widest mb-2">Stock (unidades)</label>
+        <input id="editar-stock" type="number" min="0"
+               class="w-full bg-surface-container-low border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-3 px-0"/>
+      </div>
+    </div>
+    <input type="hidden" id="editar-id"/>
+    <div class="flex gap-3 mt-8">
+      <button id="cerrar-modal-editar-2" class="flex-1 py-3 border border-outline-variant text-on-surface-variant font-bold uppercase text-sm hover:border-primary hover:text-primary transition-all">Cancelar</button>
+      <button id="guardar-producto" class="flex-1 py-3 bg-primary text-on-primary font-bold uppercase text-sm hover:bg-white hover:text-black transition-all">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../../data.js"></script>
+<script src="../../clases/Bicicleta.js"></script>
+<script src="../../clases/Usuario.js"></script>
+<script src="../../clases/Compra.js"></script>
+<script src="../../clases/Venta.js"></script>
+<script src="../../ui/Renderer.js"></script>
+<script src="../../app.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+
+    const dashboardEl = document.getElementById('dashboard-admin');
+    const accesoEl = document.getElementById('acceso-restringido');
+
+    // ── Verificar acceso admin
+    function verificarAcceso() {
+      if (App.usuarioActual && App.usuarioActual.esAdmin()) {
+        dashboardEl.classList.remove('hidden');
+        accesoEl.classList.add('hidden');
+        document.getElementById('saludo-admin').textContent =
+          `Bienvenido, ${App.usuarioActual.nombre} (${App.usuarioActual.rol.toUpperCase()})`;
+        cargarDashboard();
+      } else {
+        dashboardEl.classList.add('hidden');
+        accesoEl.classList.remove('hidden');
+      }
+    }
+
+    // Botón login admin desde panel restringido
+    document.getElementById('btn-login-admin').addEventListener('click', () => {
+      Renderer.mostrarModalSesion((email, pass) => {
+        const resultado = App.login(email, pass);
+        if (resultado.exito) {
+          verificarAcceso();
+        }
+        return resultado;
+      });
+    });
+
+    // ── Cargar datos del dashboard
+    function cargarDashboard() {
+      const admin = App.usuarioActual; // Instancia de Admin
+
+      // KPIs
+      document.getElementById('kpi-productos').textContent = App.catalogo.size;
+      document.getElementById('kpi-ventas').textContent = App.ventas.length;
+
+      const totalIngresos = App.ventas.reduce((acc, v) => acc + v.total, 0);
+      document.getElementById('kpi-ingresos').textContent = `$${totalIngresos.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
+
+      let stockBajo = 0;
+      App.catalogo.forEach(b => { if (b.stock <= 2) stockBajo++; });
+      document.getElementById('kpi-stock-bajo').textContent = stockBajo;
+
+      // Tabla de productos
+      renderizarTablaProductos();
+
+      // Tabla de ventas
+      renderizarTablaVentas();
+
+      // Lista de usuarios
+      renderizarUsuarios();
+    }
+
+    // ── Tabla de productos
+    function renderizarTablaProductos() {
+      const tbody = document.getElementById('tabla-productos');
+      tbody.innerHTML = '';
+
+      App.catalogo.forEach(bicicleta => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-outline-variant hover:bg-surface-container-high transition-colors';
+        tr.innerHTML = `
+          <td class="p-4 text-on-surface font-bold">${bicicleta.nombre}</td>
+          <td class="p-4 text-on-surface-variant capitalize border-r border-outline-variant">${bicicleta.categoria}</td>
+          <td class="p-4 text-primary font-bold border-r border-outline-variant">${bicicleta.precioFormateado}</td>
+          <td class="p-4 border-r border-outline-variant">
+            <span class="${bicicleta.stock <= 2 ? 'text-red-400' : 'text-primary'} font-bold">${bicicleta.stock}</span>
+          </td>
+          <td class="p-4">
+            <button class="btn-editar text-xs text-primary font-bold hover:underline uppercase tracking-wider" data-id="${bicicleta.id}">
+              Editar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Evento editar
+      tbody.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', () => abrirModalEditar(btn.dataset.id));
+      });
+    }
+
+    // ── Modal editar producto
+    function abrirModalEditar(id) {
+      const bicicleta = App.catalogo.get(id);
+      if (!bicicleta) return;
+
+      document.getElementById('editar-id').value = id;
+      document.getElementById('editar-nombre').textContent = bicicleta.nombre;
+      document.getElementById('editar-precio').value = bicicleta.precio;
+      document.getElementById('editar-stock').value = bicicleta.stock;
+      document.getElementById('modal-editar').classList.remove('hidden');
+    }
+
+    const cerrarModal = () => document.getElementById('modal-editar').classList.add('hidden');
+    document.getElementById('cerrar-modal-editar').addEventListener('click', cerrarModal);
+    document.getElementById('cerrar-modal-editar-2').addEventListener('click', cerrarModal);
+
+    document.getElementById('guardar-producto').addEventListener('click', () => {
+      const id = document.getElementById('editar-id').value;
+      const bicicleta = App.catalogo.get(id);
+      const admin = App.usuarioActual;
+
+      if (!bicicleta || !admin) return;
+
+      const nuevoPrecio = parseFloat(document.getElementById('editar-precio').value);
+      const nuevoStock = parseInt(document.getElementById('editar-stock').value);
+
+      try {
+        admin.actualizarPrecio(bicicleta, nuevoPrecio);
+        admin.actualizarStock(bicicleta, nuevoStock);
+        cerrarModal();
+        renderizarTablaProductos();
+        cargarDashboard();
+        Renderer.mostrarToast(`"${bicicleta.nombre}" actualizado ✓`, 'success');
+      } catch (e) {
+        Renderer.mostrarToast(e.message, 'error');
+      }
+    });
+
+    // ── Tabla de ventas
+    function renderizarTablaVentas() {
+      const tbody = document.getElementById('tabla-ventas');
+      const vacioEl = document.getElementById('ventas-vacio');
+      const containerEl = document.getElementById('tabla-ventas-container');
+      tbody.innerHTML = '';
+
+      if (App.ventas.length === 0) {
+        vacioEl.classList.remove('hidden');
+        containerEl.classList.add('hidden');
+        return;
+      }
+
+      vacioEl.classList.add('hidden');
+      containerEl.classList.remove('hidden');
+
+      [...App.ventas].reverse().forEach(venta => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-outline-variant hover:bg-surface-container-high transition-colors';
+        const fecha = new Date(venta.fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+        tr.innerHTML = `
+          <td class="p-4 text-primary font-mono font-bold border-r border-outline-variant text-xs">${venta.numeroSeguimiento}</td>
+          <td class="p-4 text-on-surface-variant border-r border-outline-variant">${venta.usuarioNombre || 'Invitado'}</td>
+          <td class="p-4 text-on-surface-variant border-r border-outline-variant text-xs">${fecha}</td>
+          <td class="p-4 text-on-surface border-r border-outline-variant">${venta.items?.length || 0} items</td>
+          <td class="p-4 text-primary font-bold border-r border-outline-variant">$${venta.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+          <td class="p-4"><span class="text-xs bg-primary/20 text-primary px-2 py-1 font-bold uppercase">${venta.estado}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── Lista de usuarios
+    function renderizarUsuarios() {
+      const container = document.getElementById('lista-usuarios');
+      container.innerHTML = '';
+
+      App.usuarios.forEach(usuario => {
+        const div = document.createElement('div');
+        div.className = 'bg-surface-container border border-outline-variant p-6';
+        div.innerHTML = `
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <p class="font-bold text-on-surface">${usuario.nombre}</p>
+              <p class="text-on-surface-variant text-xs">${usuario.email}</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 uppercase ${usuario.rol === 'admin' ? 'bg-primary text-on-primary' : 'border border-outline-variant text-on-surface-variant'}">
+              ${usuario.rol}
+            </span>
+          </div>
+          <div class="text-xs text-on-surface-variant space-y-1">
+            <p>Registrado: ${new Date(usuario.fechaRegistro).toLocaleDateString('es-CO')}</p>
+            <p>Compras: ${usuario.historialCompras.length}</p>
+            ${usuario.esAdmin() ? `<p class="text-primary">Permisos: ${usuario.permisos.join(', ')}</p>` : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ── Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
+      });
+    });
+
+    // Verificar acceso al cargar
+    verificarAcceso();
+  });
+</script>
+</body>
+</html>
